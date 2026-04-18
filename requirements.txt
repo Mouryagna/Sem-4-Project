@@ -6,3 +6,8 @@ scikit-learn
 xgboost
 joblib
 statsmodels
+tensorflow
+lightgbm
+catboost
+dill
+streamlit
