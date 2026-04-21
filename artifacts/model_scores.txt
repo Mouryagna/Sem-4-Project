@@ -1,5 +1,4 @@
 MODEL PERFORMANCE REPORT
-============================================================
 
 Model Name : Linear Regression
 R2 Score   : 0.9605
@@ -15,17 +14,15 @@ Model Name : XGBoost
 R2 Score   : 0.9616
 MAE        : 28.0439
 RMSE       : 35.0516
-------------------------------------------------------------
-Model Name : CatBoost
-R2 Score   : 0.9657
-MAE        : 24.2115
-RMSE       : 33.1119
-------------------------------------------------------------
-Model Name : LightGBM
-R2 Score   : 0.9648
-MAE        : 26.0638
-RMSE       : 33.5532
+----------------------------------------------------------------
+Model Name     : CNN + Bidirectional LSTM
+R2 Score       : 0.9705
+MAE            : 21.2946
+RMSE           : 30.7168
+Epochs Trained : 64
+Seq Length     : 48
+Features       : 69
 ------------------------------------------------------------
 
-Best Model : CatBoost
-Best Score : 0.9657
+Best Model : CNN + Bidirectional LSTM
+Best R2 Score : 0.9705

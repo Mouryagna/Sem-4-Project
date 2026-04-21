@@ -13,31 +13,21 @@ class TrainPipeline:
         try:
             logging.info("Training Pipeline Started")
 
+            # ── Data Ingestion ────────────────────────────────────────────────
             ingestion = DataIngestion()
-
             train_path, test_path = ingestion.initiate_data_ingestion()
-
             logging.info("Data Ingestion Completed")
 
+            # ── Data Transformation ───────────────────────────────────────────
             transformation = DataTransformation()
-
-            X_train, y_train, X_test, y_test, preprocessor_path = transformation.initiate_data_transformation(
-                train_path,
-                test_path
-            )
-
+            X_train, y_train, X_test, y_test, scaler_y_path, preprocessor_path = \
+                transformation.initiate_data_transformation(train_path, test_path)
             logging.info("Data Transformation Completed")
 
+            # ── Model Training ────────────────────────────────────────────────
             trainer = ModelTrainer()
-
-            best_score = trainer.initiate_model_trainer(
-                X_train,
-                y_train,
-                X_test,
-                y_test
-            )
-
-            logging.info(f"Model Training Completed. Best Score : {best_score}")
+            best_score = trainer.initiate_model_trainer(X_train, y_train, X_test, y_test)
+            logging.info(f"Model Training Completed. R2 Score: {best_score:.4f}")
 
             return best_score
 

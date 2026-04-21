@@ -1,7 +1,6 @@
 import os
 import sys
 import dill
-import numpy as np
 from src.exception import CustomException
 
 def save_object(file_path, obj):

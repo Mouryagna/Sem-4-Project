@@ -35,7 +35,7 @@ class DataIngestion:
 
             # ── 2. Parse datetime columns ────────────────────────────────────
             df["datetime"] = pd.to_datetime(df["datetime"])
-            df["date"] = pd.to_datetime(df["date"])
+            df["date"]     = pd.to_datetime(df["date"])
 
             # ── 3. Filter Delhi only ─────────────────────────────────────────
             df = df[df["city"] == "Delhi"].copy()
@@ -55,13 +55,11 @@ class DataIngestion:
             # ── 6. Time-based train/test split (80/20) ───────────────────────
             split = int(len(df) * 0.8)
             train_set = df.iloc[:split]
-            test_set = df.iloc[split:]
+            test_set  = df.iloc[split:]
 
             train_set.to_csv(self.ingestion_config.train_data_path, index=False, header=True)
-            test_set.to_csv(self.ingestion_config.test_data_path, index=False, header=True)
-            logging.info(
-                f"Train ({train_set.shape}) and Test ({test_set.shape}) saved to artifacts/"
-            )
+            test_set.to_csv(self.ingestion_config.test_data_path,   index=False, header=True)
+            logging.info(f"Train ({train_set.shape}) and Test ({test_set.shape}) saved to artifacts/")
 
             return (
                 self.ingestion_config.train_data_path,
@@ -76,10 +74,10 @@ if __name__ == "__main__":
     obj = DataIngestion()
     train_data, test_data = obj.initiate_data_ingestion()
 
+    # ── LSTM pipeline ────────────────────────────────────────────────────────
     data_transformation = DataTransformation()
-    train_arr, test_arr, preprocessor_path = data_transformation.initiate_data_transformation(
-        train_data, test_data
-    )
+    X_train, y_train, X_test, y_test, scaler_y_path, preprocessor_path = \
+        data_transformation.initiate_data_transformation(train_data, test_data)
 
     modeltrainer = ModelTrainer()
-    print(modeltrainer.initiate_model_trainer(train_arr, test_arr))
+    print(modeltrainer.initiate_model_trainer(X_train, y_train, X_test, y_test))
