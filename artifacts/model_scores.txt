@@ -9,11 +9,6 @@ Model Name : Random Forest
 R2 Score   : 0.9647
 MAE        : 24.5036
 RMSE       : 33.6049
-------------------------------------------------------------
-Model Name : XGBoost
-R2 Score   : 0.9616
-MAE        : 28.0439
-RMSE       : 35.0516
 ----------------------------------------------------------------
 Model Name     : CNN + Bidirectional LSTM
 R2 Score       : 0.9705

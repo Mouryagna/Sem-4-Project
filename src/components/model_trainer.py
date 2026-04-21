@@ -44,7 +44,7 @@ class ModelTrainer:
         try:
             model = Sequential([
 
-                # ── CNN Block ─────────────────────────────────────────────────
+
                 Conv1D(filters=64, kernel_size=3, activation='relu',
                        padding='same', input_shape=(seq_len, n_features)),
                 BatchNormalization(),
@@ -53,16 +53,16 @@ class ModelTrainer:
                 MaxPooling1D(pool_size=2),
                 Dropout(0.2),
 
-                # ── Bidirectional LSTM Block ──────────────────────────────────
+
                 Bidirectional(LSTM(128, return_sequences=True)),
                 Dropout(0.3),
                 Bidirectional(LSTM(64, return_sequences=False)),
                 Dropout(0.3),
 
-                # ── Output Block ──────────────────────────────────────────────
+
                 Dense(64, activation='relu'),
                 Dense(32, activation='relu'),
-                Dense(1)   # Linear — no activation for regression
+                Dense(1)
             ])
 
             model.compile(
@@ -80,7 +80,6 @@ class ModelTrainer:
 
     def evaluate_model(self, y_true, y_pred, scaler_y=None):
         try:
-            # Inverse transform back to real AQI range (0-500)
             if scaler_y is not None:
                 y_pred  = scaler_y.inverse_transform(y_pred.reshape(-1, 1))
                 y_true  = scaler_y.inverse_transform(y_true.reshape(-1, 1))
@@ -97,18 +96,13 @@ class ModelTrainer:
     def initiate_model_trainer(self, X_train, y_train, X_test, y_test):
         try:
             logging.info("Model Training Started")
-
-            # ── Load scaler_y for inverse transform ───────────────────────────
             scaler_y_path = os.path.join(PROJECT_ROOT, "artifacts", "scaler_y.pkl")
             scaler_y      = load_object(scaler_y_path)
 
             seq_len    = X_train.shape[1]
             n_features = X_train.shape[2]
 
-            # ── Build model ───────────────────────────────────────────────────
             model = self.build_model(seq_len, n_features)
-
-            # ── Callbacks ─────────────────────────────────────────────────────
             callbacks = [
                 EarlyStopping(
                     monitor='val_loss',
@@ -134,7 +128,7 @@ class ModelTrainer:
                 )
             ]
 
-            # ── Train ─────────────────────────────────────────────────────────
+
             history = model.fit(
                 X_train, y_train,
                 epochs=100,
@@ -146,7 +140,7 @@ class ModelTrainer:
 
             logging.info(f"Training stopped at epoch: {len(history.history['loss'])}")
 
-            # ── Evaluate ──────────────────────────────────────────────────────
+
             y_pred = model.predict(X_test)
             r2, mae, rmse = self.evaluate_model(y_test, y_pred, scaler_y)
 
@@ -154,7 +148,7 @@ class ModelTrainer:
             logging.info(f"MAE  : {mae:.4f}")
             logging.info(f"RMSE : {rmse:.4f}")
 
-            # ── Save report (JSON) ────────────────────────────────────────────
+
             final_report = {
                 "model": "CNN + Bidirectional LSTM",
                 "r2_score": float(r2),
@@ -168,7 +162,7 @@ class ModelTrainer:
             with open(self.model_trainer_config.model_report_path, "w") as f:
                 json.dump(final_report, f, indent=4)
 
-            # ── Save scores (TXT) ─────────────────────────────────────────────
+
             with open(self.model_trainer_config.model_score_path, "w") as f:
                 f.write("MODEL PERFORMANCE REPORT\n")
                 f.write("=" * 60 + "\n\n")
@@ -181,7 +175,7 @@ class ModelTrainer:
                 f.write(f"Features       : {n_features}\n")
                 f.write("-" * 60 + "\n")
 
-            # ── Save final model ──────────────────────────────────────────────
+
             model.save(self.model_trainer_config.trained_model_file_path)
             logging.info("Model saved successfully to artifacts/model.keras")
 

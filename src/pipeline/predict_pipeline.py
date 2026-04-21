@@ -112,7 +112,7 @@ class PredictPipeline:
         This gives a proper (1, 48, n_features) sequence.
         """
         try:
-            # Take last SEQ_LEN-1 rows as history window
+
             window = hist.tail(SEQ_LEN - 1).copy()
 
             rows = []
@@ -134,15 +134,15 @@ class PredictPipeline:
                 row_df = self.create_backend_features(row_df, hist)
                 rows.append(row_df)
 
-            # Append current input row
+
             rows.append(current_row_df)
 
             sequence_df = pd.concat(rows, ignore_index=True)
 
-            # Transform all rows using preprocessor
-            sequence_scaled = preprocessor.transform(sequence_df)  # (SEQ_LEN, n_features)
 
-            # Reshape to (1, SEQ_LEN, n_features) for LSTM
+            sequence_scaled = preprocessor.transform(sequence_df)
+
+
             sequence_3d = sequence_scaled.reshape(1, SEQ_LEN, -1)
 
             return sequence_3d
@@ -160,22 +160,22 @@ class PredictPipeline:
             preprocessor = load_object(preprocessor_path)
             scaler_y     = load_object(scaler_y_path)
 
-            # ── Load history for lag/rolling/sequence features ────────────────
+
             raw_path = os.path.join(PROJECT_ROOT, "artifacts", "raw.csv")
             hist = pd.read_csv(raw_path)
             hist["datetime"] = pd.to_datetime(hist["datetime"])
             hist = hist.sort_values("datetime").reset_index(drop=True)
 
-            # ── Engineer features for current input row ───────────────────────
+
             final_df = self.create_backend_features(features.copy(), hist)
 
-            # ── Build (1, 48, n_features) sequence ───────────────────────────
+
             sequence_3d = self.build_sequence(final_df, preprocessor, hist)
 
-            # ── Predict (scaled) ──────────────────────────────────────────────
+
             pred_scaled = model.predict(sequence_3d)
 
-            # ── Inverse transform → real AQI (0-500) ─────────────────────────
+
             pred_actual = scaler_y.inverse_transform(pred_scaled)
 
             logging.info(f"Prediction completed: {pred_actual[0][0]:.2f}")

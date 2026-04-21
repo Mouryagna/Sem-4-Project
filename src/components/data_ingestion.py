@@ -28,31 +28,29 @@ class DataIngestion:
     def initiate_data_ingestion(self):
         logging.info("Entered the data ingestion component")
         try:
-            # ── 1. Load dataset ──────────────────────────────────────────────
+
             data_path = os.path.join(PROJECT_ROOT, "Data", "delhi_ncr_aqi_dataset.csv")
             df = pd.read_csv(data_path)
             logging.info("Dataset read successfully")
 
-            # ── 2. Parse datetime columns ────────────────────────────────────
             df["datetime"] = pd.to_datetime(df["datetime"])
             df["date"]     = pd.to_datetime(df["date"])
 
-            # ── 3. Filter Delhi only ─────────────────────────────────────────
+
             df = df[df["city"] == "Delhi"].copy()
             df = df.sort_values("datetime").reset_index(drop=True)
             logging.info(f"After filtering Delhi: {df.shape}")
 
-            # ── 4. Drop unwanted columns ─────────────────────────────────────
             df = df.drop(columns=["aqi_category", "station", "city"])
             df.dropna(inplace=True)
             logging.info(f"Dataset shape after cleaning: {df.shape}")
 
-            # ── 5. Save artifacts ────────────────────────────────────────────
+
             os.makedirs(self.ingestion_config.artifacts_dir, exist_ok=True)
             df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
             logging.info(f"Raw data saved to {self.ingestion_config.raw_data_path}")
 
-            # ── 6. Time-based train/test split (80/20) ───────────────────────
+
             split = int(len(df) * 0.8)
             train_set = df.iloc[:split]
             test_set  = df.iloc[split:]
@@ -74,7 +72,6 @@ if __name__ == "__main__":
     obj = DataIngestion()
     train_data, test_data = obj.initiate_data_ingestion()
 
-    # ── LSTM pipeline ────────────────────────────────────────────────────────
     data_transformation = DataTransformation()
     X_train, y_train, X_test, y_test, scaler_y_path, preprocessor_path = \
         data_transformation.initiate_data_transformation(train_data, test_data)

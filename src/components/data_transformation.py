@@ -35,15 +35,14 @@ class DataTransformation:
             df["datetime"] = pd.to_datetime(df["datetime"])
             df["date"]     = pd.to_datetime(df["date"])
 
-            # ── Time features ────────────────────────────────────────────────
+
             df["hour"]        = df["datetime"].dt.hour
             df["day"]         = df["datetime"].dt.day
             df["month"]       = df["datetime"].dt.month
             df["weekday"]     = df["datetime"].dt.weekday
-            df["day_of_week"] = df["datetime"].dt.day_name()  # OHE handles this
             df["is_weekend"]  = df["weekday"].apply(lambda x: 1 if x in [5, 6] else 0)
 
-            # ── AQI lag features ─────────────────────────────────────────────
+
             lags = [1, 2, 3, 6, 12, 24, 48, 72, 168]
             for lag in lags:
                 df[f"AQI_lag_{lag}"] = df["aqi"].shift(lag)
@@ -53,13 +52,12 @@ class DataTransformation:
             df["AQI_pct_change_1"]  = df["aqi"].pct_change(1)
             df["AQI_pct_change_24"] = df["aqi"].pct_change(24)
 
-            # ── Pollutant lag features ───────────────────────────────────────
+
             pollutants = ["pm25", "pm10", "no2", "so2", "co", "o3"]
             for col in pollutants:
                 for lag in [1, 3, 6]:
                     df[f"{col}_lag_{lag}"] = df[col].shift(lag)
 
-            # ── Cyclical features ────────────────────────────────────────────
             df["hour_sin"]  = np.sin(2 * np.pi * df["hour"]    / 24)
             df["hour_cos"]  = np.cos(2 * np.pi * df["hour"]    / 24)
             df["month_sin"] = np.sin(2 * np.pi * df["month"]   / 12)
@@ -67,21 +65,16 @@ class DataTransformation:
             df["dow_sin"]   = np.sin(2 * np.pi * df["weekday"] / 7)
             df["dow_cos"]   = np.cos(2 * np.pi * df["weekday"] / 7)
 
-            # ── Interaction features ─────────────────────────────────────────
             df["pm25_no2"] = df["pm25"] * df["no2"]
             df["pm25_o3"]  = df["pm25"] * df["o3"]
 
-            # ── Rolling statistics ───────────────────────────────────────────
             df["AQI_roll_3"]  = df["aqi"].rolling(3).mean().shift(1)
             df["AQI_roll_6"]  = df["aqi"].rolling(6).mean().shift(1)
             df["AQI_roll_12"] = df["aqi"].rolling(12).mean().shift(1)
             df["AQI_std_3"]   = df["aqi"].rolling(3).std().shift(1)
             df["AQI_std_6"]   = df["aqi"].rolling(6).std().shift(1)
 
-            # ── season kept as string — OHE handles it, NOT get_dummies ──────
-            # do NOT do pd.get_dummies here
 
-            # ── Target ───────────────────────────────────────────────────────
             df["target_AQI"] = df["aqi"].shift(-1)
 
             df.dropna(inplace=True)
@@ -97,8 +90,6 @@ class DataTransformation:
                 ("scaler", MinMaxScaler())
             ])
 
-            # OHE handles both day_of_week AND season consistently
-            # handle_unknown="ignore" — safe for unseen categories at predict time
             cat_pipeline = Pipeline(steps=[
                 ("ohe", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
             ])
@@ -142,9 +133,6 @@ class DataTransformation:
             X_test_df  = test_df.drop(columns=drop_cols)
             y_test_df  = test_df[target_column]
 
-            # ── Identify column types ────────────────────────────────────────
-            # day_of_week + season → categorical → OHE
-            # everything else      → numeric     → MinMaxScaler
             numeric_cols     = X_train_df.select_dtypes(
                 include=["int64", "float64", "bool"]
             ).columns.tolist()
@@ -155,24 +143,20 @@ class DataTransformation:
             logging.info(f"Numeric cols   : {len(numeric_cols)}")
             logging.info(f"Categorical cols: {categorical_cols}")
 
-            # ── Preprocessor — fit on train only ─────────────────────────────
             preprocessor   = self.get_preprocessor(numeric_cols, categorical_cols)
             X_train_scaled = preprocessor.fit_transform(X_train_df)
             X_test_scaled  = preprocessor.transform(X_test_df)
 
-            # ── Scale y separately ───────────────────────────────────────────
             scaler_y       = MinMaxScaler()
             y_train_scaled = scaler_y.fit_transform(y_train_df.values.reshape(-1, 1))
             y_test_scaled  = scaler_y.transform(y_test_df.values.reshape(-1, 1))
 
-            # ── Sliding window sequences ─────────────────────────────────────
             SEQ_LEN = self.data_transformation_config.SEQ_LEN
             X_train, y_train = self.create_sequences(X_train_scaled, y_train_scaled, SEQ_LEN)
             X_test,  y_test  = self.create_sequences(X_test_scaled,  y_test_scaled,  SEQ_LEN)
 
             logging.info(f"X_train: {X_train.shape} | X_test: {X_test.shape}")
 
-            # ── Save artifacts ────────────────────────────────────────────────
             os.makedirs(os.path.join(PROJECT_ROOT, "artifacts"), exist_ok=True)
             save_object(file_path=self.data_transformation_config.preprocessor_path, obj=preprocessor)
             save_object(file_path=self.data_transformation_config.scaler_y_path,     obj=scaler_y)

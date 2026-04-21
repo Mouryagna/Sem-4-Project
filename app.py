@@ -14,12 +14,10 @@ st.title("🌫️ Delhi AQI Prediction")
 st.markdown("Enter current pollutant and time details to predict next hour AQI")
 
 
-# ── Prediction History ────────────────────────────────────────────────────────
 if "history" not in st.session_state:
     st.session_state.history = []
 
 
-# ── Season options ────────────────────────────────────────────────────────────
 df = pd.read_csv("Data/delhi_ncr_aqi_dataset.csv")
 
 if "season" in df.columns:
@@ -28,14 +26,12 @@ else:
     seasons = ["Winter", "Summer", "Monsoon", "Post_Monsoon"]
 
 
-# ── Day of week mapping ───────────────────────────────────────────────────────
 day_map = {
     "Monday": 0, "Tuesday": 1, "Wednesday": 2,
     "Thursday": 3, "Friday": 4, "Saturday": 5, "Sunday": 6
 }
 
 
-# ── Input Layout ──────────────────────────────────────────────────────────────
 col1, col2 = st.columns(2)
 
 with col1:
@@ -56,7 +52,6 @@ with col2:
 weekday = day_map[selected_day]
 
 
-# ── Prediction ────────────────────────────────────────────────────────────────
 if st.button("Predict AQI 🌫️"):
     with st.spinner("Generating prediction..."):
 
@@ -70,10 +65,8 @@ if st.button("Predict AQI 🌫️"):
         pred_df  = data.get_data_as_data_frame()
         pipeline = PredictPipeline()
 
-        # LSTM predict() returns a single float directly
         predicted_aqi = max(0.0, pipeline.predict(pred_df))
 
-    # ── Store history ─────────────────────────────────────────────────────
     st.session_state.history.append({
         "PM2.5": pm25, "PM10": pm10, "NO2": no2,
         "SO2": so2, "CO": co, "O3": o3,
@@ -84,7 +77,6 @@ if st.button("Predict AQI 🌫️"):
 
     st.success(f"Predicted Next Hour AQI: **{predicted_aqi:.2f}**")
 
-    # ── AQI Category ──────────────────────────────────────────────────────
     if predicted_aqi <= 50:
         st.info("Air Quality: Good")
     elif predicted_aqi <= 100:
@@ -99,7 +91,6 @@ if st.button("Predict AQI 🌫️"):
         st.error("Air Quality:  Severe")
 
 
-# ── History Section ───────────────────────────────────────────────────────────
 if len(st.session_state.history) > 0:
     st.subheader("📜 Previous Predictions")
 
