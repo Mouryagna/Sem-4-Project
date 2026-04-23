@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}AQI Information{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-circle-info"></i> Understanding AQI</h1>
+  <p>Everything you need to know about Air Quality Index</p>
+</div>
+
+<div class="info-section">
+
+  <!-- What is AQI -->
+  <div class="info-block glass-card">
+    <h2><i class="fas fa-question-circle"></i> What is AQI?</h2>
+    <p>The <strong>Air Quality Index (AQI)</strong> is a standardized indicator developed to communicate how polluted the air currently is or how polluted it is forecast to become. It transforms complex air quality data into a single number, color code, and descriptive category that people can easily understand.</p>
+    <p>In India, the <strong>National Air Quality Index (NAQI)</strong> was launched by the Ministry of Environment, Forest and Climate Change in October 2014. It considers <strong>eight pollutants</strong>: PM10, PM2.5, NO₂, SO₂, CO, O₃, NH₃, and Pb. The AQI value is the maximum of sub-indices computed for each pollutant.</p>
+  </div>
+
+  <!-- How AQI is Calculated -->
+  <div class="info-block glass-card">
+    <h2><i class="fas fa-calculator"></i> How is AQI Calculated?</h2>
+    <p>AQI is calculated using the following steps:</p>
+    <ul>
+      <li><strong>Step 1:</strong> Measure the concentration of each pollutant (PM2.5, PM10, NO₂, SO₂, CO, O₃) over a specified averaging period.</li>
+      <li><strong>Step 2:</strong> Calculate a <em>sub-index</em> for each pollutant using breakpoint concentration tables defined by CPCB (Central Pollution Control Board).</li>
+      <li><strong>Step 3:</strong> The overall AQI is the <strong>maximum</strong> of all sub-indices. The pollutant with the highest sub-index is called the <em>dominant pollutant</em>.</li>
+    </ul>
+    <h3>Sub-Index Formula</h3>
+    <p>For each pollutant, the sub-index (I) is calculated using linear interpolation:</p>
+    <div class="glass-card" style="background:rgba(102,126,234,.08);text-align:center;padding:1.5rem;margin:1rem 0;font-size:1.1rem;font-weight:600;font-family:monospace">
+      I = ((I_high - I_low) / (C_high - C_low)) × (C - C_low) + I_low
+    </div>
+    <p>Where C is the pollutant concentration, and breakpoints (C_low, C_high, I_low, I_high) are from CPCB standards.</p>
+  </div>
+
+  <!-- AQI Categories -->
+  <div class="info-block glass-card">
+    <h2><i class="fas fa-layer-group"></i> AQI Categories & Health Impact</h2>
+    <table class="info-table">
+      <thead>
+        <tr>
+          <th>AQI Range</th>
+          <th>Category</th>
+          <th>Health Impact</th>
+          <th>Advice</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#10b981;font-weight:700">0 – 50</td>
+          <td style="color:#10b981;font-weight:600">Good</td>
+          <td>Minimal impact on health</td>
+          <td>Enjoy outdoor activities freely</td>
+        </tr>
+        <tr>
+          <td style="color:#22c55e;font-weight:700">51 – 100</td>
+          <td style="color:#22c55e;font-weight:600">Satisfactory</td>
+          <td>Minor breathing discomfort to sensitive people</td>
+          <td>Sensitive individuals should limit prolonged outdoor exertion</td>
+        </tr>
+        <tr>
+          <td style="color:#f59e0b;font-weight:700">101 – 200</td>
+          <td style="color:#f59e0b;font-weight:600">Moderate</td>
+          <td>Breathing discomfort to people with lung/heart disease</td>
+          <td>Reduce prolonged outdoor exertion. Use masks if sensitive</td>
+        </tr>
+        <tr>
+          <td style="color:#f97316;font-weight:700">201 – 300</td>
+          <td style="color:#f97316;font-weight:600">Poor</td>
+          <td>Breathing discomfort on prolonged exposure</td>
+          <td>Avoid outdoor activities. Use N95 masks. Keep windows closed</td>
+        </tr>
+        <tr>
+          <td style="color:#ef4444;font-weight:700">301 – 400</td>
+          <td style="color:#ef4444;font-weight:600">Very Poor</td>
+          <td>Respiratory illness on prolonged exposure</td>
+          <td>Stay indoors. Use air purifiers. Avoid all outdoor exercise</td>
+        </tr>
+        <tr>
+          <td style="color:#dc2626;font-weight:700">401 – 500</td>
+          <td style="color:#dc2626;font-weight:600">Severe</td>
+          <td>Serious health effects for everyone</td>
+          <td>Stay indoors, seal windows. Medical emergency preparedness</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Key Pollutants -->
+  <div class="info-block glass-card">
+    <h2><i class="fas fa-flask"></i> Key Pollutants Explained</h2>
+    <div class="pollutant-info-grid">
+      <div class="pollutant-info-card">
+        <h4><i class="fas fa-smog" style="color:#ef4444"></i> PM2.5</h4>
+        <p><strong>Fine Particulate Matter</strong> — Particles smaller than 2.5 micrometers. They penetrate deep into lungs and bloodstream. Major sources: vehicle exhaust, industrial emissions, crop burning. Most dangerous air pollutant for human health.</p>
+      </div>
+      <div class="pollutant-info-card">
+        <h4><i class="fas fa-smog" style="color:#f97316"></i> PM10</h4>
+        <p><strong>Coarse Particulate Matter</strong> — Particles smaller than 10 micrometers. Sources include dust, pollen, construction. Can cause respiratory issues but less dangerous than PM2.5 as they don't penetrate as deep.</p>
+      </div>
+      <div class="pollutant-info-card">
+        <h4><i class="fas fa-flask" style="color:#f59e0b"></i> NO₂ (Nitrogen Dioxide)</h4>
+        <p>Reddish-brown gas from vehicle emissions and power plants. Irritates airways and increases susceptibility to respiratory infections. Contributes to smog and acid rain formation.</p>
+      </div>
+      <div class="pollutant-info-card">
+        <h4><i class="fas fa-flask" style="color:#667eea"></i> SO₂ (Sulfur Dioxide)</h4>
+        <p>Produced by burning fossil fuels (coal, oil) in power plants and industrial facilities. Causes respiratory problems and contributes to acid rain. Reacts in atmosphere to form fine particles.</p>
+      </div>
+      <div class="pollutant-info-card">
+        <h4><i class="fas fa-cloud" style="color:#94a3b8"></i> CO (Carbon Monoxide)</h4>
+        <p>Colorless, odorless gas from incomplete combustion. Vehicle exhaust is the primary source. Reduces oxygen delivery in blood. High concentrations can be fatal in enclosed spaces.</p>
+      </div>
+      <div class="pollutant-info-card">
+        <h4><i class="fas fa-sun" style="color:#22c55e"></i> O₃ (Ozone)</h4>
+        <p><strong>Ground-level ozone</strong> is formed when NOx and VOCs react in sunlight. Unlike stratospheric ozone (which protects us), ground-level ozone triggers chest pain, coughing, and asthma.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delhi Specific -->
+  <div class="info-block glass-card">
+    <h2><i class="fas fa-city"></i> Delhi's Air Quality Challenge</h2>
+    <p>Delhi consistently ranks among the world's most polluted cities. Key factors contributing to poor air quality include:</p>
+    <ul>
+      <li><strong>Vehicular Emissions:</strong> Over 12 million registered vehicles contribute ~40% of PM2.5 in Delhi.</li>
+      <li><strong>Crop Burning:</strong> Stubble burning in Punjab and Haryana during Oct-Nov causes severe spikes in AQI.</li>
+      <li><strong>Industrial Emissions:</strong> Factories in NCR and surrounding areas release harmful pollutants.</li>
+      <li><strong>Construction Dust:</strong> Rapid urbanization and construction generates significant PM10.</li>
+      <li><strong>Geography:</strong> Delhi's landlocked location traps pollutants, especially during winter inversions.</li>
+      <li><strong>Winter Inversion:</strong> Cold air traps pollutants near ground level, causing AQI to spike above 400+ during November–January.</li>
+    </ul>
+  </div>
+
+  <!-- About This Model -->
+  <div class="info-block glass-card">
+    <h2><i class="fas fa-brain"></i> About Our Prediction Model</h2>
+    <p>This project uses a <strong>CNN + Bidirectional LSTM</strong> deep learning architecture to predict next-hour AQI for Delhi:</p>
+    <ul>
+      <li><strong>Architecture:</strong> Conv1D layers extract spatial patterns → BiLSTM layers capture temporal dependencies → Dense layers produce the final prediction.</li>
+      <li><strong>Sequence Length:</strong> Uses 48-hour historical sequences for context-aware predictions.</li>
+      <li><strong>Features:</strong> 60+ engineered features including pollutant lags, rolling statistics, cyclical time encodings, and interaction terms.</li>
+      <li><strong>Training Data:</strong> 200,000+ hourly readings from Delhi NCR monitoring stations.</li>
+      <li><strong>Preprocessing:</strong> MinMaxScaler for numerical features, OneHotEncoding for categorical (season, day_of_week).</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

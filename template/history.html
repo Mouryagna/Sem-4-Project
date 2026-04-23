@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Prediction History{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-clock-rotate-left"></i> Prediction History</h1>
+  <p>Track and export all your AQI predictions</p>
+</div>
+
+<div class="history-section">
+  {% if predictions|length > 0 %}
+  <div class="history-actions">
+    <div class="history-stats">
+      <div class="stat-pill"><i class="fas fa-hashtag"></i> Total: <strong>{{ predictions|length }}</strong></div>
+      <div class="stat-pill"><i class="fas fa-chart-bar"></i> Avg AQI: <strong>{{ "%.1f"|format(predictions|map(attribute='predicted_aqi')|list|sum / predictions|length) }}</strong></div>
+    </div>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+      <button class="btn btn-danger btn-sm" onclick="clearHistory()"><i class="fas fa-trash"></i> Clear All</button>
+    </div>
+  </div>
+
+  <div class="data-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Timestamp</th>
+          <th>PM2.5</th>
+          <th>PM10</th>
+          <th>NO₂</th>
+          <th>SO₂</th>
+          <th>CO</th>
+          <th>O₃</th>
+          <th>Season</th>
+          <th>Predicted AQI</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in predictions|reverse %}
+        <tr>
+          <td>{{ predictions|length - loop.index0 }}</td>
+          <td>{{ p.timestamp }}</td>
+          <td>{{ p.pm25 }}</td>
+          <td>{{ p.pm10 }}</td>
+          <td>{{ p.no2 }}</td>
+          <td>{{ p.so2 }}</td>
+          <td>{{ p.co }}</td>
+          <td>{{ p.o3 }}</td>
+          <td>{{ p.season }}</td>
+          <td><strong>{{ p.predicted_aqi }}</strong></td>
+          <td>
+            {% set cat = p.category %}
+            {% if cat == 'Good' %}
+              <span class="aqi-badge" style="background:rgba(16,185,129,.15);color:#10b981">{{ cat }}</span>
+            {% elif cat == 'Satisfactory' %}
+              <span class="aqi-badge" style="background:rgba(34,197,94,.15);color:#22c55e">{{ cat }}</span>
+            {% elif cat == 'Moderate' %}
+              <span class="aqi-badge" style="background:rgba(245,158,11,.15);color:#f59e0b">{{ cat }}</span>
+            {% elif cat == 'Poor' %}
+              <span class="aqi-badge" style="background:rgba(249,115,22,.15);color:#f97316">{{ cat }}</span>
+            {% elif cat == 'Very Poor' %}
+              <span class="aqi-badge" style="background:rgba(239,68,68,.15);color:#ef4444">{{ cat }}</span>
+            {% else %}
+              <span class="aqi-badge" style="background:rgba(220,38,38,.15);color:#dc2626">{{ cat }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="glass-card empty-state">
+    <i class="fas fa-inbox"></i>
+    <h3>No predictions yet</h3>
+    <p>Make your first AQI prediction to see it here</p>
+    <a href="{{ url_for('predict') }}" class="btn btn-primary btn-sm" style="margin-top:1rem"><i class="fas fa-brain"></i> Make a Prediction</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

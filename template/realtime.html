@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Real-Time AQI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-satellite-dish"></i> Real-Time Air Quality</h1>
+  <p>Live AQI data across Delhi NCR</p>
+</div>
+
+<div class="realtime-section">
+  <div style="text-align:center">
+    <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+  </div>
+
+  <div id="rtLoading" class="rt-loading">
+    <div class="spinner" style="display:inline-block"></div>
+    <p>Fetching live data...</p>
+  </div>
+  <div id="rtError" class="rt-error" style="display:none"></div>
+  <div id="grid" class="station-grid"></div>
+
+  <div style="text-align:center;margin-top:2rem">
+    <button class="btn btn-outline btn-sm" onclick="load()" id="rbtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+    <p style="color:var(--text-muted);font-size:.75rem;margin-top:.5rem">Source: Open-Meteo Air Quality API — Auto-refreshes every 5 min</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fmt(v,u){return v!=null?v+(u||''):'--'}
+
+async function load(){
+  var ld=document.getElementById('rtLoading'),er=document.getElementById('rtError'),
+      g=document.getElementById('grid'),b=document.getElementById('rbtn');
+  ld.style.display='block';er.style.display='none';g.innerHTML='';
+  if(b){b.disabled=true;b.innerHTML='<span class="spinner"></span> Loading...';}
+  try{
+    var r=await fetch('/api/realtime');var j=await r.json();
+    ld.style.display='none';
+    if(b){b.disabled=false;b.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+    if(!j.success){er.style.display='block';er.textContent='Could not fetch data.';return;}
+    j.stations.forEach(function(s){
+      var d=document.createElement('div');d.className='station-card';
+      d.style.borderLeft='4px solid '+s.color;
+      var t=s.time?new Date(s.time).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'--';
+      d.innerHTML=
+        '<div class="station-name"><i class="fas fa-map-marker-alt"></i> '+s.name+'</div>'+
+        '<div class="station-aqi" style="color:'+s.color+'">'+s.aqi+'</div>'+
+        '<div class="station-cat" style="color:'+s.color+'">'+s.category+'</div>'+
+        '<div class="station-updated"><i class="far fa-clock"></i> '+t+'</div>'+
+        '<div class="station-pollutants">'+
+          '<div><div class="sp-name">PM2.5</div><div class="sp-val">'+fmt(s.pm25,' µg/m³')+'</div></div>'+
+          '<div><div class="sp-name">PM10</div><div class="sp-val">'+fmt(s.pm10,' µg/m³')+'</div></div>'+
+          '<div><div class="sp-name">NO₂</div><div class="sp-val">'+fmt(s.no2,' µg/m³')+'</div></div>'+
+          '<div><div class="sp-name">SO₂</div><div class="sp-val">'+fmt(s.so2,' µg/m³')+'</div></div>'+
+          '<div><div class="sp-name">CO</div><div class="sp-val">'+fmt(s.co,' mg/m³')+'</div></div>'+
+          '<div><div class="sp-name">O₃</div><div class="sp-val">'+fmt(s.o3,' µg/m³')+'</div></div>'+
+        '</div>';
+      g.appendChild(d);
+    });
+  }catch(e){
+    ld.style.display='none';
+    if(b){b.disabled=false;b.innerHTML='<i class="fas fa-sync-alt"></i> Refresh';}
+    er.style.display='block';er.textContent='Error: '+e.message;
+  }
+}
+load();
+setInterval(load,300000);
+</script>
+{% endblock %}

@@ -10,5 +10,6 @@ tensorflow
 lightgbm
 catboost
 dill
+flask
 streamlit
 tensorboard

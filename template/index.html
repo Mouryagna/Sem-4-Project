@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block description %}Real-time Delhi Air Quality Index prediction and monitoring{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><i class="fas fa-satellite-dish"></i> Air Quality Intelligence</div>
+    <h1>Delhi Air Quality<br><span class="gradient-text">Prediction Platform</span></h1>
+    <p>Advanced CNN + BiLSTM deep learning model trained on 200,000+ hourly readings to predict next-hour AQI for Delhi NCR with high accuracy.</p>
+    <div class="hero-btns">
+      <a href="{{ url_for('predict') }}" class="btn btn-primary"><i class="fas fa-brain"></i> Predict AQI Now</a>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline"><i class="fas fa-chart-line"></i> View Dashboard</a>
+    </div>
+    <div class="hero-gauge-wrap">
+      <div class="aqi-gauge">
+        <div class="aqi-gauge-inner">
+          <span class="gauge-label">AQI Scale</span>
+          <span class="gauge-value">0–500</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+  <div class="section-header">
+    <h2>Why <span class="gradient-text">Delhi AQI Predictor</span>?</h2>
+    <p>Combining deep learning with real-time environmental data for accurate air quality forecasting</p>
+  </div>
+  <div class="features-grid container">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-network-wired"></i></div>
+      <h3>CNN + BiLSTM Architecture</h3>
+      <p>Convolutional layers extract spatial patterns while Bidirectional LSTM captures temporal dependencies in pollution data.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-database"></i></div>
+      <h3>200K+ Data Points</h3>
+      <p>Trained on extensive hourly readings from multiple Delhi NCR monitoring stations for robust predictions.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-clock"></i></div>
+      <h3>Next-Hour Prediction</h3>
+      <p>Get AQI predictions for the next hour using 48-step sequence analysis of historical pollutant trends.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-wind"></i></div>
+      <h3>Multi-Pollutant Analysis</h3>
+      <p>Considers PM2.5, PM10, NO₂, SO₂, CO, and O₃ along with meteorological features for comprehensive analysis.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-chart-area"></i></div>
+      <h3>Interactive Dashboard</h3>
+      <p>Visualize historical AQI trends, pollutant breakdowns, and weather conditions through dynamic charts.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-download"></i></div>
+      <h3>Export & History</h3>
+      <p>Track all your predictions and export the data as CSV for further analysis and reporting.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AQI Scale -->
+<section class="aqi-scale">
+  <div class="section-header">
+    <h2>AQI Categories</h2>
+    <p>Understanding what the numbers mean for your health</p>
+  </div>
+  <div class="aqi-scale-grid container">
+    <div class="aqi-scale-card" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);">
+      <div class="range" style="color:var(--aqi-good)">0–50</div>
+      <div class="label" style="color:var(--aqi-good)">Good</div>
+    </div>
+    <div class="aqi-scale-card" style="background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);">
+      <div class="range" style="color:var(--aqi-sat)">51–100</div>
+      <div class="label" style="color:var(--aqi-sat)">Satisfactory</div>
+    </div>
+    <div class="aqi-scale-card" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);">
+      <div class="range" style="color:var(--aqi-mod)">101–200</div>
+      <div class="label" style="color:var(--aqi-mod)">Moderate</div>
+    </div>
+    <div class="aqi-scale-card" style="background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.3);">
+      <div class="range" style="color:var(--aqi-poor)">201–300</div>
+      <div class="label" style="color:var(--aqi-poor)">Poor</div>
+    </div>
+    <div class="aqi-scale-card" style="background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);">
+      <div class="range" style="color:var(--aqi-vpoor)">301–400</div>
+      <div class="label" style="color:var(--aqi-vpoor)">Very Poor</div>
+    </div>
+    <div class="aqi-scale-card" style="background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.3);">
+      <div class="range" style="color:var(--aqi-severe)">400+</div>
+      <div class="label" style="color:var(--aqi-severe)">Severe</div>
+    </div>
+  </div>
+</section>
+{% endblock %}

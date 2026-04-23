@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1><i class="fas fa-chart-line"></i> Air Quality Dashboard</h1>
+  <p>Real-time pollutant data and AQI trends from Delhi NCR monitoring stations</p>
+</div>
+
+<div class="dashboard">
+  {% if stats %}
+  <!-- Top Row: AQI Hero + Chart -->
+  <div class="dash-top">
+    <div class="aqi-hero-card">
+      <div>
+        <div class="aqi-big" style="color:{{ stats.color }}" data-count="{{ stats.aqi }}" data-decimals="1">0</div>
+      </div>
+      <div>
+        <div class="aqi-cat" style="color:{{ stats.color }}"><i class="{{ stats.icon }}"></i> {{ stats.category }}</div>
+        <div style="font-size:.85rem;color:var(--text-secondary);margin:.25rem 0">Current AQI</div>
+        <div class="aqi-time"><i class="far fa-clock"></i> {{ stats.datetime }}</div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:1.5rem;flex-wrap:wrap">
+        <div style="text-align:center"><div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">PM2.5</div><div style="font-size:1.25rem;font-weight:700">{{ stats.pm25 }}</div></div>
+        <div style="text-align:center"><div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">PM10</div><div style="font-size:1.25rem;font-weight:700">{{ stats.pm10 }}</div></div>
+        <div style="text-align:center"><div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">NO₂</div><div style="font-size:1.25rem;font-weight:700">{{ stats.no2 }}</div></div>
+        <div style="text-align:center"><div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Temp</div><div style="font-size:1.25rem;font-weight:700">{{ stats.temperature }}°C</div></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-area"></i> AQI Trend — Last 7 Days</h3>
+      <div style="position:relative;height:270px">
+        <canvas id="aqiChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pollutant Cards -->
+  <h3 style="margin:1.5rem 0 1rem;font-weight:700;font-size:1.1rem"><i class="fas fa-flask"></i> Pollutant Levels</h3>
+  <div class="pollutant-grid">
+    <div class="pollutant-card">
+      <div class="poll-name">PM2.5</div>
+      <div class="poll-val" data-count="{{ stats.pm25 }}" data-decimals="1">0</div>
+      <div class="poll-unit">µg/m³</div>
+    </div>
+    <div class="pollutant-card">
+      <div class="poll-name">PM10</div>
+      <div class="poll-val" data-count="{{ stats.pm10 }}" data-decimals="1">0</div>
+      <div class="poll-unit">µg/m³</div>
+    </div>
+    <div class="pollutant-card">
+      <div class="poll-name">NO₂</div>
+      <div class="poll-val" data-count="{{ stats.no2 }}" data-decimals="1">0</div>
+      <div class="poll-unit">µg/m³</div>
+    </div>
+    <div class="pollutant-card">
+      <div class="poll-name">SO₂</div>
+      <div class="poll-val" data-count="{{ stats.so2 }}" data-decimals="1">0</div>
+      <div class="poll-unit">µg/m³</div>
+    </div>
+    <div class="pollutant-card">
+      <div class="poll-name">CO</div>
+      <div class="poll-val" data-count="{{ stats.co }}" data-decimals="2">0</div>
+      <div class="poll-unit">mg/m³</div>
+    </div>
+    <div class="pollutant-card">
+      <div class="poll-name">O₃</div>
+      <div class="poll-val" data-count="{{ stats.o3 }}" data-decimals="1">0</div>
+      <div class="poll-unit">µg/m³</div>
+    </div>
+  </div>
+
+  <!-- Weather -->
+  <div class="weather-grid">
+    <div class="weather-card">
+      <i class="fas fa-temperature-half"></i>
+      <div><div class="w-label">Temperature</div><div class="w-val">{{ stats.temperature }}°C</div></div>
+    </div>
+    <div class="weather-card">
+      <i class="fas fa-droplet"></i>
+      <div><div class="w-label">Humidity</div><div class="w-val">{{ stats.humidity }}%</div></div>
+    </div>
+    <div class="weather-card">
+      <i class="fas fa-wind"></i>
+      <div><div class="w-label">Wind Speed</div><div class="w-val">{{ stats.wind_speed }} km/h</div></div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h3>Dashboard data unavailable</h3>
+    <p>{{ error or 'Could not load raw data from artifacts.' }}</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if stats %}
+<script>
+const ctx = document.getElementById('aqiChart').getContext('2d');
+const labels = {{ chart_labels|safe }};
+const aqiData = {{ chart_aqi|safe }};
+
+// Show every 6th label to avoid crowding
+const displayLabels = labels.map((l, i) => i % 6 === 0 ? l : '');
+
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: displayLabels,
+    datasets: [{
+      label: 'AQI',
+      data: aqiData,
+      borderColor: '#667eea',
+      backgroundColor: 'rgba(102,126,234,.1)',
+      borderWidth: 2,
+      fill: true,
+      tension: .4,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: '#667eea'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(17,24,39,.9)',
+        titleColor: '#f1f5f9',
+        bodyColor: '#94a3b8',
+        borderColor: 'rgba(255,255,255,.1)',
+        borderWidth: 1,
+        callbacks: { title: (items) => labels[items[0].dataIndex] }
+      }
+    },
+    scales: {
+      x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } },
+      y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,.04)' }, beginAtZero: true }
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}
